@@ -30,10 +30,10 @@ int main()
 
     char res;
 
-    while ( (res != 'y') and (res != 'Y') and (res != 'n') and (res != 'N') ) {
+    do {
         cout << "Использовать тестовые данные(y/n)?\n";
         res = getchar();
-    }
+    } while ( (res != 'y') and (res != 'Y') and (res != 'n') and (res != 'N') );
 
     if ( (res == 'n') or (res == 'N') ) {
 
