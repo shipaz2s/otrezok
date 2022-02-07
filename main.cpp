@@ -1,32 +1,63 @@
 #include <iostream>
 #include <cmath>
+#include <valarray>
 
 using namespace std;
+
+
+template <typename T>
+T coords_sum(valarray<T> vec)
+{
+    T sum = 0;
+    for(auto v: vec) {
+        sum += v;
+    }
+    return sum;
+}
+
+template<typename T>
+T distance(valarray<T> v1, valarray<T> v2)
+{
+    if (v1.size() != v2.size()) throw std::length_error{"distance: vectors must have the same size"};
+
+    T dist = 0;
+    for (int i = 0; i != v1.size(); ++i) {
+        dist += pow(v1[i] - v2[i], 2);
+    }
+
+    dist = sqrt(dist);
+
+    return dist;
+}
 
 int main()
 {
 
     /*
-    double A[3] = {9, 7, 0};
-    double B[3] = {11, 4, 0};
-    double C[3] = {3, 0, 5};
-    double D[3] = {6, 0, 1};
+    valarray<double> A[3] = {9, 7, 0};
+    valarray<double> B[3] = {11, 4, 0};
+    valarray<double> C[3] = {3, 0, 5};
+    valarray<double> D[3] = {6, 0, 1};
     */
 
     /*
-    double A[3] = {9, 7, 0};
-    double B[3] = {13, 1, 0};
-    double C[3] = {3, 0, 5};
-    double D[3] = {9, 0, -3};
+    valarray<double> A[3] = {9, 7, 0};
+    valarray<double> B[3] = {13, 1, 0};
+    valarray<double> C[3] = {3, 0, 5};
+    valarray<double> D[3] = {9, 0, -3};
     */
 
+    /*
+    valarray<double> A = {6, 4, 0};
+    valarray<double> B = {11, 4, 0};
+    valarray<double> C = {3, -1, 5};
+    valarray<double> D = {7, -1, 0};
+    */
 
-    double A[3] = {6, 4, 0};
-    double B[3] = {11, 4, 0};
-    double C[3] = {3, -1, 5};
-    double D[3] = {7, -1, 0};
-
-
+    valarray<double> A = {6, 4, 0};
+    valarray<double> B = {11, 4, 0};
+    valarray<double> C = {3, -1, 0};
+    valarray<double> D = {7, -1, 0};
 
     char res;
 
@@ -57,56 +88,61 @@ int main()
     cout << "D (" << D[0] << "; " << D[1] << "; " << D[2] << ")" << endl;
 
     double a = 0, b = 0, g = 0, d = 0, e = 0, z = 0;
-    for (int i = 0; i < 3; ++i) {
-        a += pow(A[i] - B[i], 2);
-        b += (B[i] - D[i]) * (C[i] - D[i]);
-        g += (A[i] - B[i]) * (C[i] - D[i]);
-        d += pow(C[i] - D[i], 2);
-        e += (D[i] - C[i]) * (A[i] - B[i]);
-        z += (B[i] - D[i]) * (A[i] - B[i]);
-    }
 
-    double t = -(z*d + b*e)/(a*d + g*e);
-    double s = (b + t*g)/d;
 
-    if (t > 1) {
-        t = 1;
-    } else if (t < 0) {
-        t = 0;
-    }
+    auto a_ar = ( (A-B) * (A-B) );
+    auto b_ar = ( (B-D) * (C-D) );
+    auto g_ar = ( (A-B) * (C-D) );
+    auto d_ar = ( (C-D) * (C-D) );
+    auto e_ar = ( (D-C) * (A-B) );
+    auto z_ar = ( (B-D) * (A-B) );
 
-    if (s > 1) {
-        s = 1;
-    } else if (s < 0) {
-        s = 0;
-    }
+    a = coords_sum(valarray<double>( (A-B) * (A-B) ));
+    b = coords_sum(valarray<double>( (B-D) * (C-D) ));
+    g = coords_sum(valarray<double>( (A-B) * (C-D) ));
+    d = coords_sum(valarray<double>( (C-D) * (C-D) ));
+    e = coords_sum(valarray<double>( (D-C) * (A-B) ));
+    z = coords_sum(valarray<double>( (B-D) * (A-B) ));
 
-    double r2 = 0;
-    double r;
-
-    for (int i = 0; i < 3; ++i) {
-        r2 += pow(t * A[i] + (1-t)*B[i] - s*C[i] - (1-s)*D[i], 2);
-    }
-    r = sqrt(r2);
+    double r {0};
 
     if ( (a*d + g*e) == 0) {
+        cout << "Параллельные отрезки\n";
+        //Дописать код
+
         double rs[4] = {0, 0, 0, 0}; //ac ad bc bd
-        for ( int i = 0; i < 3; ++i) {
-            rs[0] += pow(A[i] - C[i],2);
-            rs[1] += pow(A[i] - D[i],2);
-            rs[2] += pow(B[i] - C[i],2);
-            rs[3] += pow(B[i] - D[i],2);
-        }
-        for ( int i = 0; i < 4; ++i) {
-            rs[i] = sqrt(rs[i]);
-        }
-        r = rs[0];
+        rs[0] = distance(A,C);
+        rs[1] = distance(A,D);
+        rs[2] = distance(B,C);
+        rs[3] = distance(B,D);
+
         for ( int i = 0; i < 4; ++i) {
             if (r > rs[i]) {
                 r = rs[i];
             }
         }
+
+    } else {
+
+        double t = -(z*d + b*e)/(a*d + g*e);
+        double s = (b + t*g)/d;
+
+        if (t > 1) {
+            t = 1;
+        } else if (t < 0) {
+            t = 0;
+        }
+
+        if (s > 1) {
+            s = 1;
+        } else if (s < 0) {
+            s = 0;
+        }
+
+        r = coords_sum(valarray<double>(t*A + (1-t)*B - s*C -(1-s)*D));
+
     }
+
 
     cout << "Расстояние мжду отрезками r = " << r << endl;
 
